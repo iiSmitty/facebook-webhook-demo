@@ -9,7 +9,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Fira+Code:wght@400;500;600&display=swap');
+
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-green: #39ff14;
+            --neon-purple: #8a2be2;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --card-bg: #1a1a2e;
+            --border-glow: #16213e;
+            --text-primary: #e0e6ed;
+            --text-secondary: #8892b0;
+            --terminal-green: #00ff41;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,265 +35,668 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Orbitron', monospace;
+            background: var(--dark-bg);
+            color: var(--text-primary);
             min-height: 100vh;
-            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+            /* Animated background */
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255, 0, 255, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 40% 80%, rgba(57, 255, 20, 0.1) 0%, transparent 50%);
+                z-index: -2;
+                animation: backgroundShift 20s ease-in-out infinite;
+            }
+
+        @@keyframes backgroundShift {
+            0%, 100% {
+                transform: translateX(0) translateY(0);
+            }
+
+            25% {
+                transform: translateX(-20px) translateY(-10px);
+            }
+
+            50% {
+                transform: translateX(20px) translateY(-20px);
+            }
+
+            75% {
+                transform: translateX(-10px) translateY(10px);
+            }
+        }
+
+        /* Grid pattern overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @@keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(50px, 50px);
+            }
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(26, 26, 46, 0.8) 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-            .header h1 {
-                color: #1877f2;
-                font-size: 2.5em;
-                margin-bottom: 10px;
+            .header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.05), transparent);
+                animation: headerShine 8s ease-in-out infinite;
             }
+
+        @@keyframes headerShine {
+            0%, 100% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+
+            50% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 3.5em;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 2;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @@keyframes titleGlow {
+            0% {
+                filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
+                transform: scale(1);
+            }
+
+            100% {
+                filter: drop-shadow(0 0 40px rgba(0, 255, 255, 0.8));
+                transform: scale(1.02);
+            }
+        }
 
         .status {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: #42a5f5;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 25px;
+            gap: 12px;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(57, 255, 20, 0.2));
+            color: var(--neon-cyan);
+            padding: 15px 30px;
+            border-radius: 50px;
             font-weight: 600;
-            animation: pulse 2s infinite;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--neon-cyan);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: statusPulse 2s infinite;
         }
 
-        @@keyframes pulse {
+        @@keyframes statusPulse {
             0%, 100% {
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+                border-color: var(--neon-cyan);
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(0, 255, 255, 0.6);
+                border-color: var(--neon-green);
+            }
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: dotPulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        @@keyframes dotPulse {
+            0%, 100% {
+                transform: scale(1);
                 opacity: 1;
             }
 
             50% {
+                transform: scale(1.2);
                 opacity: 0.8;
             }
         }
 
         .demo-controls {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(26, 26, 46, 0.9) 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+            .demo-controls::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+                animation: borderScan 3s linear infinite;
+            }
+
+        @@keyframes borderScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .demo-controls h3 {
+            color: var(--neon-purple);
+            font-size: 1.8em;
             margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
         }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .demo-btn {
-            background: linear-gradient(45deg, #1877f2, #42a5f5);
-            color: white;
-            border: none;
-            padding: 15px 20px;
+        .webhook-url {
+            background: var(--darker-bg);
+            border: 1px solid var(--terminal-green);
             border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1em;
-            transition: all 0.3s ease;
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95em;
+            margin: 20px 0;
+            color: var(--terminal-green);
             position: relative;
             overflow: hidden;
         }
 
+            .webhook-url::before {
+                content: '>';
+                color: var(--neon-cyan);
+                margin-right: 10px;
+                animation: cursorBlink 1s infinite;
+            }
+
+        @@keyframes cursorBlink {
+            0%, 50% {
+                opacity: 1;
+            }
+
+            51%, 100% {
+                opacity: 0.3;
+            }
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, var(--card-bg), rgba(26, 26, 46, 0.8));
+            color: var(--text-primary);
+            border: 2px solid var(--neon-cyan);
+            padding: 20px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 255, 255, 0.2);
+        }
+
+            .demo-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+                transition: left 0.5s ease;
+            }
+
+            .demo-btn:hover::before {
+                left: 100%;
+            }
+
             .demo-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
+                transform: translateY(-5px);
+                border-color: var(--neon-green);
+                box-shadow: 0 15px 35px rgba(0, 255, 255, 0.4), 0 0 50px rgba(57, 255, 20, 0.2);
+                color: var(--neon-green);
             }
 
             .demo-btn.success {
-                background: linear-gradient(45deg, #4caf50, #66bb6a);
+                border-color: var(--neon-green);
+                color: var(--neon-green);
+                box-shadow: 0 0 40px rgba(57, 255, 20, 0.5);
             }
 
             .demo-btn.clear {
-                background: linear-gradient(45deg, #f44336, #ef5350);
+                border-color: var(--neon-pink);
+                color: var(--neon-pink);
             }
+
+                .demo-btn.clear:hover {
+                    border-color: var(--neon-orange);
+                    color: var(--neon-orange);
+                    box-shadow: 0 15px 35px rgba(255, 102, 0, 0.4), 0 0 50px rgba(255, 0, 255, 0.2);
+                }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 20px;
+            background: linear-gradient(135deg, var(--card-bg), rgba(26, 26, 46, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink), var(--neon-green), var(--neon-purple));
+                border-radius: 20px;
+                z-index: -1;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .stat-card:hover::before {
+                opacity: 1;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-10px) scale(1.05);
+                box-shadow: 0 20px 60px rgba(0, 255, 255, 0.3);
+            }
+
         .stat-number {
-            font-size: 2em;
+            font-size: 3em;
             font-weight: 700;
-            color: #1877f2;
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: numberGlow 2s ease-in-out infinite alternate;
+        }
+
+        @@keyframes numberGlow {
+            0% {
+                filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.3));
+            }
+
+            100% {
+                filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
+            }
         }
 
         .stat-label {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Fira Code', monospace;
         }
 
         .leads-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, var(--card-bg), rgba(26, 26, 46, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.4);
         }
 
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink)) 1;
         }
+
+            .section-header h3 {
+                color: var(--neon-cyan);
+                font-size: 2em;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                position: relative;
+            }
+
+            .section-header span {
+                color: var(--neon-green);
+                font-family: 'Fira Code', monospace;
+                font-size: 1.1em;
+                background: rgba(57, 255, 20, 0.1);
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 1px solid var(--neon-green);
+            }
 
         .lead-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #1877f2;
-            transition: all 0.3s ease;
-            animation: slideIn 0.5s ease;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(16, 16, 35, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            animation: slideInUp 0.6s ease;
         }
 
-        @@keyframes slideIn {
+        @@keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateY(30px);
             }
 
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
         }
 
-        .lead-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        .lead-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink), var(--neon-green));
+            transition: width 0.3s ease;
         }
+
+        .lead-card:hover {
+            transform: translateX(10px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 15px 50px rgba(0, 255, 255, 0.2), -10px 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+            .lead-card:hover::before {
+                width: 100%;
+                opacity: 0.1;
+            }
 
         .lead-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .lead-name {
-            font-weight: 600;
-            color: #1877f2;
-            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .lead-time {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
+            font-family: 'Fira Code', monospace;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
         .lead-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .lead-field {
-            background: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
         }
+
+            .lead-field:hover {
+                border-color: var(--neon-cyan);
+                box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+                transform: translateY(-2px);
+            }
 
         .no-leads {
             text-align: center;
-            color: #666;
+            color: var(--text-secondary);
             font-style: italic;
-            padding: 40px;
+            padding: 60px;
+            font-size: 1.2em;
+            border: 2px dashed var(--border-glow);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4caf50;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--card-bg), rgba(26, 26, 46, 0.95));
+            color: var(--neon-green);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(57, 255, 20, 0.3);
             transform: translateX(400px);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
+            backdrop-filter: blur(10px);
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
         }
 
             .notification.show {
                 transform: translateX(0);
             }
 
-        .webhook-url {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            border: 1px solid #ddd;
-            margin: 10px 0;
+            .notification.error {
+                color: var(--neon-pink);
+                border-color: var(--neon-pink);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(255, 0, 255, 0.3);
+            }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, var(--neon-green), var(--neon-pink));
+            }
+
+        /* Responsive design */
+        @@media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lead-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .lead-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom animations for buttons */
+        .demo-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .loading {
+            position: relative;
+        }
+
+            .loading::after {
+                content: '';
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 16px;
+                height: 16px;
+                border: 2px solid transparent;
+                border-top: 2px solid var(--neon-cyan);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+        @@keyframes spin {
+            0% {
+                transform: translateY(-50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-50%) rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Facebook Webhook Demo</h1>
+            <h1><i class="fas fa-rocket"></i> Facebook Webhook</h1>
             <div class="status">
-                <span>●</span> Webhook Live & Ready
+                <div class="status-dot"></div>
+                <span>SYSTEM ONLINE</span>
             </div>
         </div>
 
         <div class="demo-controls">
-            <h3>🎯 Demo Controls</h3>
+            <h3><i class="fas fa-terminal"></i> Control Panel</h3>
             <div class="webhook-url">
-                <strong>Webhook URL:</strong> /api/FacebookWebhook
+                <strong>ENDPOINT:</strong> /api/FacebookWebhook
             </div>
             <div class="controls-grid">
                 <button class="demo-btn" onclick="triggerDemo()">
-                    🎭 Trigger Demo Lead
+                    <i class="fas fa-user-plus"></i> Generate Lead
                 </button>
                 <button class="demo-btn" onclick="simulateFacebook()">
-                    📘 Simulate Facebook
+                    <i class="fab fa-facebook"></i> Simulate Facebook
                 </button>
                 <button class="demo-btn" onclick="refreshLeads()">
-                    🔄 Refresh Data
+                    <i class="fas fa-sync-alt"></i> Refresh Data
                 </button>
                 <button class="demo-btn clear" onclick="clearLeads()">
-                    🗑️ Clear All
+                    <i class="fas fa-trash"></i> Purge All
                 </button>
             </div>
         </div>
@@ -286,140 +707,157 @@
                 <div class="stat-label">Total Leads</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="lastUpdate">--</div>
+                <div class="stat-number" id="lastUpdate">--:--</div>
                 <div class="stat-label">Last Update</div>
             </div>
         </div>
 
         <div class="leads-section">
             <div class="section-header">
-                <h3>📋 Incoming Leads</h3>
-                <span id="leadCount">0 leads</span>
+                <h3><i class="fas fa-database"></i> Lead Database</h3>
+                <span id="leadCount">0 records</span>
             </div>
             <div id="leadsContainer">
                 <div class="no-leads">
-                    🎯 Click "Trigger Demo Lead" to see webhook in action!
+                    <i class="fas fa-rocket" style="font-size: 2em; margin-bottom: 20px; color: var(--neon-cyan);"></i><br>
+                    Initialize system by generating your first lead
                 </div>
             </div>
         </div>
     </div>
 
     <div class="notification" id="notification">
-        Lead received successfully! 🎉
+        Lead acquired successfully! 🎉
     </div>
 
     <script>
         const API_BASE = '/api/FacebookWebhook';
 
-        // Show notification
+        // Show notification with enhanced styling
         function showNotification(message, isSuccess = true) {
             const notification = document.getElementById('notification');
-            notification.textContent = message + (isSuccess ? ' 🎉' : ' ❌');
-            notification.style.background = isSuccess ? '#4caf50' : '#f44336';
+            notification.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+            notification.className = `notification ${isSuccess ? '' : 'error'}`;
             notification.classList.add('show');
 
             setTimeout(() => {
                 notification.classList.remove('show');
-            }, 3000);
+            }, 4000);
         }
 
-// Trigger demo lead
-async function triggerDemo() {
-    const btn = event.target;
-    const originalText = btn.textContent;
-
-    try {
-        btn.textContent = '⏳ Creating Lead...';
-        btn.disabled = true;
-
-        const randomNum = Math.floor(Math.random() * 900) + 100;
-        const response = await fetch(API_BASE + '/trigger-demo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: 'Demo User ' + randomNum,
-                email: 'demo' + randomNum + '@@example.com',
-                phone: '+1-555-' + (Math.floor(Math.random() * 9000) + 1000)
-             })
-        });
-
-        if (response.ok) {
-            btn.textContent = '✅ Success!';
-            btn.classList.add('success');
-            showNotification('Demo lead created successfully!');
-
-            setTimeout(() => refreshLeads(), 500);
-        } else {
-            throw new Error('Failed to create lead');
-        }
-    } catch (error) {
-        btn.textContent = '❌ Failed';
-        showNotification('Failed to create lead', false);
-        console.error(error);
-    } finally {
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('success');
-            btn.disabled = false;
-        }, 2000);
-    }
-}
-
-        // Simulate Facebook webhook
-        async function simulateFacebook() {
+        // Enhanced trigger demo with better UX
+        async function triggerDemo() {
             const btn = event.target;
-            const originalText = btn.textContent;
+            const originalHTML = btn.innerHTML;
 
             try {
-                btn.textContent = '⏳ Simulating...';
+                btn.innerHTML = '<i class="fas fa-cog fa-spin"></i> Initializing...';
                 btn.disabled = true;
+                btn.classList.add('loading');
+
+                const randomNum = Math.floor(Math.random() * 900) + 100;
+                const response = await fetch(API_BASE + '/trigger-demo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: `CyberUser_${randomNum}`,
+                        email: `cyber${randomNum}@@nexus.net`,
+                        phone: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`
+                    })
+                });
+
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                    btn.classList.add('success');
+                    showNotification('Lead successfully integrated into database!');
+
+                    // Add some visual flair
+                    confettiEffect();
+                    setTimeout(() => refreshLeads(), 500);
+                } else {
+                    throw new Error('System error detected');
+                }
+            } catch (error) {
+                btn.innerHTML = '<i class="fas fa-times"></i> Error';
+                showNotification('System error: Lead generation failed', false);
+                console.error(error);
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('success', 'loading');
+                    btn.disabled = false;
+                }, 2500);
+            }
+        }
+
+        // Enhanced Facebook simulation
+        async function simulateFacebook() {
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+
+            try {
+                btn.innerHTML = '<i class="fas fa-satellite-dish fa-pulse"></i> Connecting...';
+                btn.disabled = true;
+                btn.classList.add('loading');
 
                 const response = await fetch(`${API_BASE}/simulate-facebook`, {
                     method: 'POST'
                 });
 
                 if (response.ok) {
-                    btn.textContent = '✅ Simulated!';
+                    btn.innerHTML = '<i class="fas fa-check"></i> Connected!';
                     btn.classList.add('success');
-                    showNotification('Facebook webhook simulated!');
+                    showNotification('Facebook API simulation successful!');
 
                     setTimeout(() => refreshLeads(), 500);
                 } else {
-                    throw new Error('Failed to simulate');
+                    throw new Error('Connection failed');
                 }
             } catch (error) {
-                btn.textContent = '❌ Failed';
-                showNotification('Failed to simulate webhook', false);
+                btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+                showNotification('Facebook simulation failed', false);
                 console.error(error);
             } finally {
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('success');
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('success', 'loading');
                     btn.disabled = false;
-                }, 2000);
+                }, 2500);
             }
         }
 
-        // Clear all leads
+        // Enhanced clear function
         async function clearLeads() {
-            if (!confirm('Clear all leads?')) return;
+            if (!confirm('⚠️ DANGER ZONE ⚠️\n\nThis will permanently delete all lead records.\nAre you sure you want to proceed?')) return;
+
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
 
             try {
+                btn.innerHTML = '<i class="fas fa-skull-crossbones fa-pulse"></i> Purging...';
+                btn.disabled = true;
+
                 const response = await fetch(`${API_BASE}/clear`, {
                     method: 'DELETE'
                 });
 
                 if (response.ok) {
-                    showNotification('All leads cleared!');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Purged!';
+                    showNotification('All records successfully purged from database!');
                     refreshLeads();
                 }
             } catch (error) {
-                showNotification('Failed to clear leads', false);
+                showNotification('Purge operation failed', false);
                 console.error(error);
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }, 2500);
             }
         }
 
-        // Refresh leads data
+        // Enhanced refresh function
         async function refreshLeads() {
             try {
                 const response = await fetch(`${API_BASE}/leads`);
@@ -429,55 +867,234 @@ async function triggerDemo() {
                 displayLeads(data.leads || []);
             } catch (error) {
                 console.error('Error fetching leads:', error);
+                showNotification('Data sync failed', false);
             }
         }
 
-        // Update statistics
+        // Enhanced stats update with animations
         function updateStats(data) {
-            document.getElementById('totalLeads').textContent = data.totalCount || 0;
-            document.getElementById('leadCount').textContent = `${data.totalCount || 0} leads`;
+            const totalElement = document.getElementById('totalLeads');
+            const countElement = document.getElementById('leadCount');
+            const updateElement = document.getElementById('lastUpdate');
+
+            // Animate number change
+            animateNumber(totalElement, parseInt(totalElement.textContent) || 0, data.totalCount || 0);
+
+            countElement.textContent = `${data.totalCount || 0} records`;
 
             const now = new Date();
-            document.getElementById('lastUpdate').textContent =
-                now.toLocaleTimeString().slice(0, 5);
+            updateElement.textContent = now.toLocaleTimeString().slice(0, 5);
         }
 
-        // Display leads
+        // Number animation function
+        function animateNumber(element, start, end) {
+            const duration = 1000;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / (end - start))) || 50;
+
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                element.textContent = current;
+
+                if (current === end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        // Enhanced lead display with better animations
         function displayLeads(leads) {
             const container = document.getElementById('leadsContainer');
 
             if (!leads || leads.length === 0) {
                 container.innerHTML = `
-                    <div class="no-leads">
-                        🎯 Click "Trigger Demo Lead" to see webhook in action!
-                    </div>
-                `;
+                        <div class="no-leads">
+                            <i class="fas fa-rocket" style="font-size: 2em; margin-bottom: 20px; color: var(--neon-cyan);"></i><br>
+                            Initialize system by generating your first lead
+                        </div>
+                    `;
                 return;
             }
 
-            container.innerHTML = leads.map(lead => `
-                <div class="lead-card">
-                    <div class="lead-header">
-                        <div class="lead-name">${lead.name}</div>
-                        <div class="lead-time">${new Date(lead.timestamp).toLocaleString()}</div>
+            // Add staggered animations
+            container.innerHTML = leads.map((lead, index) => `
+                    <div class="lead-card" style="animation-delay: ${index * 100}ms">
+                        <div class="lead-header">
+                            <div class="lead-name">
+                                <i class="fas fa-user-astronaut"></i> ${lead.name}
+                            </div>
+                            <div class="lead-time">${new Date(lead.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div class="lead-details">
+                            <div class="lead-field">
+                                <i class="fas fa-envelope" style="color: var(--neon-cyan); margin-right: 8px;"></i>
+                                ${lead.email}
+                            </div>
+                            <div class="lead-field">
+                                <i class="fas fa-phone" style="color: var(--neon-green); margin-right: 8px;"></i>
+                                ${lead.phone}
+                            </div>
+                            <div class="lead-field">
+                                <i class="fas fa-satellite" style="color: var(--neon-purple); margin-right: 8px;"></i>
+                                ${lead.source}
+                            </div>
+                            <div class="lead-field">
+                                <i class="fas fa-tag" style="color: var(--neon-pink); margin-right: 8px;"></i>
+                                ${lead.status}
+                            </div>
+                        </div>
                     </div>
-                    <div class="lead-details">
-                        <div class="lead-field">📧 ${lead.email}</div>
-                        <div class="lead-field">📞 ${lead.phone}</div>
-                        <div class="lead-field">📍 ${lead.source}</div>
-                        <div class="lead-field">🏷️ ${lead.status}</div>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
-        // Auto-refresh every 5 seconds
-        setInterval(refreshLeads, 5000);
+        // Confetti effect for success actions
+        function confettiEffect() {
+            // Create temporary confetti elements
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                        position: fixed;
+                        width: 8px;
+                        height: 8px;
+                        background: ${['var(--neon-cyan)', 'var(--neon-pink)', 'var(--neon-green)', 'var(--neon-purple)'][Math.floor(Math.random() * 4)]};
+                        top: 20%;
+                        left: ${Math.random() * 100}%;
+                        z-index: 9999;
+                        pointer-events: none;
+                        border-radius: 50%;
+                        animation: confettiFall ${2 + Math.random() * 3}s ease-out forwards;
+                    `;
 
-        // Initial load
-        refreshLeads();
+                document.body.appendChild(confetti);
 
-        console.log('🚀 Facebook Webhook Demo Dashboard Ready!');
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Add confetti animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+                @@keyframes confettiFall {
+                    0% {
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(100vh) rotate(720deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+        document.head.appendChild(style);
+
+        // Enhanced auto-refresh with visual indicator
+        let refreshInterval;
+        let refreshCounter = 0;
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                refreshCounter++;
+                refreshLeads();
+
+                // Add subtle visual feedback
+                const refreshBtn = document.querySelector('.demo-btn:nth-child(3)');
+                if (refreshBtn) {
+                    refreshBtn.style.borderColor = 'var(--neon-green)';
+                    setTimeout(() => {
+                        refreshBtn.style.borderColor = '';
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Typing effect for webhook URL
+        function typeWriterEffect() {
+            const webhookElement = document.querySelector('.webhook-url');
+            const text = webhookElement.innerHTML;
+            webhookElement.innerHTML = '';
+
+            let i = 0;
+            const timer = setInterval(() => {
+                webhookElement.innerHTML = text.slice(0, i) + (i < text.length ? '<span style="animation: cursorBlink 1s infinite;">|</span>' : '');
+                i++;
+
+                if (i > text.length) {
+                    clearInterval(timer);
+                    webhookElement.innerHTML = text;
+                }
+            }, 50);
+        }
+
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case '1':
+                        e.preventDefault();
+                        triggerDemo();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        simulateFacebook();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        refreshLeads();
+                        break;
+                }
+            }
+        });
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            console.log('%c🚀 CYBERPUNK DASHBOARD INITIALIZED 🚀', 'color: #00ffff; font-size: 16px; font-weight: bold;');
+            console.log('%cKeyboard Shortcuts:', 'color: #ff00ff; font-size: 14px;');
+            console.log('%cCtrl+1: Generate Lead', 'color: #39ff14;');
+            console.log('%cCtrl+2: Simulate Facebook', 'color: #39ff14;');
+            console.log('%cCtrl+R: Refresh Data', 'color: #39ff14;');
+
+            // Initial load
+            refreshLeads();
+
+            // Start auto-refresh
+            startAutoRefresh();
+
+            // Add typing effect after a delay
+            setTimeout(typeWriterEffect, 1000);
+
+            // Add welcome animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 1s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+
+        // Enhanced error handling
+        window.addEventListener('error', (e) => {
+            console.error('System error detected:', e.error);
+            showNotification('System error detected - check console', false);
+        });
+
+        // Start the system
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Fallback initialization
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        } else {
+            initializeDashboard();
+        }
     </script>
 </body>
 </html>
