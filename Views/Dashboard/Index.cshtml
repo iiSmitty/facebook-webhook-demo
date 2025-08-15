@@ -585,10 +585,12 @@
             backdrop-filter: blur(10px);
             font-family: 'Fira Code', monospace;
             font-weight: 500;
+            opacity: 0;
         }
 
             .notification.show {
                 transform: translateX(0);
+                opacity: 1;
             }
 
             .notification.error {
@@ -733,17 +735,53 @@
     <script>
         const API_BASE = '/api/FacebookWebhook';
 
-        // Show notification with enhanced styling
+        // Show notification with simple, reliable method
         function showNotification(message, isSuccess = true) {
             const notification = document.getElementById('notification');
+
+            // Clear any existing timeout
+            if (window.notificationTimeout) {
+                clearTimeout(window.notificationTimeout);
+            }
+
+            // Immediately hide the notification first
+            notification.classList.remove('show');
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(400px)';
+
+            // Set content and style
             notification.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
             notification.className = `notification ${isSuccess ? '' : 'error'}`;
-            notification.classList.add('show');
 
+            // Show after a brief delay
             setTimeout(() => {
+                notification.classList.add('show');
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 50);
+
+            // Auto-hide after 3 seconds
+            window.notificationTimeout = setTimeout(() => {
                 notification.classList.remove('show');
-            }, 4000);
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(400px)';
+
+                // Extra safety - completely reset after animation
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    setTimeout(() => {
+                        notification.style.display = 'block';
+                    }, 100);
+                }, 500);
+            }, 3000);
         }
+
+        // Remove the old functions
+        function hideNotification() {
+            // This function is no longer needed
+        }
+
+        // Remove click handler setup
 
         // Enhanced trigger demo with better UX
         async function triggerDemo() {
@@ -844,7 +882,7 @@
                 if (response.ok) {
                     btn.innerHTML = '<i class="fas fa-check"></i> Purged!';
                     showNotification('All records successfully purged from database!');
-                    refreshLeads();
+                    setTimeout(() => refreshLeads(), 500);
                 }
             } catch (error) {
                 showNotification('Purge operation failed', false);
