@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace FacebookWebhookDemo.Controllers
@@ -19,20 +18,42 @@ namespace FacebookWebhookDemo.Controllers
     // In-memory storage for demo
     public static class LeadStorage
     {
-        private static readonly ConcurrentBag<Lead> _leads = new();
+        private static readonly List<Lead> _leads = new();
+        private static readonly object _lock = new();
 
         public static void AddLead(Lead lead)
         {
-            _leads.Add(lead);
+            lock (_lock)
+            {
+                _leads.Add(lead);
+            }
             Console.WriteLine($"💡 New Lead Added: {lead.Name} ({lead.Email})");
         }
 
         public static List<Lead> GetAllLeads()
         {
-            return _leads.OrderByDescending(l => l.Timestamp).ToList();
+            lock (_lock)
+            {
+                return _leads.OrderByDescending(l => l.Timestamp).ToList();
+            }
         }
 
-        public static int GetLeadCount() => _leads.Count;
+        public static int GetLeadCount()
+        {
+            lock (_lock)
+            {
+                return _leads.Count;
+            }
+        }
+
+        public static void ClearAllLeads()
+        {
+            lock (_lock)
+            {
+                _leads.Clear();
+            }
+            Console.WriteLine("🗑️ All leads cleared!");
+        }
     }
 
     // Simple request model for demo triggers
@@ -218,13 +239,12 @@ namespace FacebookWebhookDemo.Controllers
             });
         }
 
-        // Clear all leads (for demo reset)
+        // Clear all leads (for demo reset) - FIXED VERSION
         [HttpDelete("clear")]
         public IActionResult ClearLeads()
         {
             var currentCount = LeadStorage.GetLeadCount();
-            typeof(LeadStorage).GetField("_leads", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-                ?.SetValue(null, new ConcurrentBag<Lead>());
+            LeadStorage.ClearAllLeads();
 
             _logger.LogInformation($"🗑️ Cleared {currentCount} leads for demo reset");
 
