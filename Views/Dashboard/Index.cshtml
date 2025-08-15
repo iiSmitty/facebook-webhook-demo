@@ -1,0 +1,482 @@
+﻿@{
+    ViewData["Title"] = "Facebook Webhook Demo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+            .header h1 {
+                color: #1877f2;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #42a5f5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .demo-controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .demo-btn {
+            background: linear-gradient(45deg, #1877f2, #42a5f5);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .demo-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
+            }
+
+            .demo-btn.success {
+                background: linear-gradient(45deg, #4caf50, #66bb6a);
+            }
+
+            .demo-btn.clear {
+                background: linear-gradient(45deg, #f44336, #ef5350);
+            }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1877f2;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .leads-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .lead-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1877f2;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease;
+        }
+
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .lead-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .lead-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .lead-name {
+            font-weight: 600;
+            color: #1877f2;
+            font-size: 1.1em;
+        }
+
+        .lead-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .lead-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .lead-field {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .no-leads {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+            .notification.show {
+                transform: translateX(0);
+            }
+
+        .webhook-url {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Facebook Webhook Demo</h1>
+            <div class="status">
+                <span>●</span> Webhook Live & Ready
+            </div>
+        </div>
+
+        <div class="demo-controls">
+            <h3>🎯 Demo Controls</h3>
+            <div class="webhook-url">
+                <strong>Webhook URL:</strong> /api/FacebookWebhook
+            </div>
+            <div class="controls-grid">
+                <button class="demo-btn" onclick="triggerDemo()">
+                    🎭 Trigger Demo Lead
+                </button>
+                <button class="demo-btn" onclick="simulateFacebook()">
+                    📘 Simulate Facebook
+                </button>
+                <button class="demo-btn" onclick="refreshLeads()">
+                    🔄 Refresh Data
+                </button>
+                <button class="demo-btn clear" onclick="clearLeads()">
+                    🗑️ Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalLeads">0</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastUpdate">--</div>
+                <div class="stat-label">Last Update</div>
+            </div>
+        </div>
+
+        <div class="leads-section">
+            <div class="section-header">
+                <h3>📋 Incoming Leads</h3>
+                <span id="leadCount">0 leads</span>
+            </div>
+            <div id="leadsContainer">
+                <div class="no-leads">
+                    🎯 Click "Trigger Demo Lead" to see webhook in action!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Lead received successfully! 🎉
+    </div>
+
+    <script>
+        const API_BASE = '/api/FacebookWebhook';
+
+        // Show notification
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message + (isSuccess ? ' 🎉' : ' ❌');
+            notification.style.background = isSuccess ? '#4caf50' : '#f44336';
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Trigger demo lead
+        async function triggerDemo() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+
+            try {
+                btn.textContent = '⏳ Creating Lead...';
+                btn.disabled = true;
+
+                const response = await fetch(`${API_BASE}/trigger-demo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: `Demo User ${Math.floor(Math.random() * 900) + 100}`,
+                        email: `demo${Math.floor(Math.random() * 900) + 100}@example.com`,
+                        phone: `+1-555-${Math.floor(Math.random() * 9000) + 1000}`
+                    })
+                });
+
+                if (response.ok) {
+                    btn.textContent = '✅ Success!';
+                    btn.classList.add('success');
+                    showNotification('Demo lead created successfully!');
+
+                    setTimeout(() => refreshLeads(), 500);
+                } else {
+                    throw new Error('Failed to create lead');
+                }
+            } catch (error) {
+                btn.textContent = '❌ Failed';
+                showNotification('Failed to create lead', false);
+                console.error(error);
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('success');
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Simulate Facebook webhook
+        async function simulateFacebook() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+
+            try {
+                btn.textContent = '⏳ Simulating...';
+                btn.disabled = true;
+
+                const response = await fetch(`${API_BASE}/simulate-facebook`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    btn.textContent = '✅ Simulated!';
+                    btn.classList.add('success');
+                    showNotification('Facebook webhook simulated!');
+
+                    setTimeout(() => refreshLeads(), 500);
+                } else {
+                    throw new Error('Failed to simulate');
+                }
+            } catch (error) {
+                btn.textContent = '❌ Failed';
+                showNotification('Failed to simulate webhook', false);
+                console.error(error);
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('success');
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Clear all leads
+        async function clearLeads() {
+            if (!confirm('Clear all leads?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/clear`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification('All leads cleared!');
+                    refreshLeads();
+                }
+            } catch (error) {
+                showNotification('Failed to clear leads', false);
+                console.error(error);
+            }
+        }
+
+        // Refresh leads data
+        async function refreshLeads() {
+            try {
+                const response = await fetch(`${API_BASE}/leads`);
+                const data = await response.json();
+
+                updateStats(data);
+                displayLeads(data.leads || []);
+            } catch (error) {
+                console.error('Error fetching leads:', error);
+            }
+        }
+
+        // Update statistics
+        function updateStats(data) {
+            document.getElementById('totalLeads').textContent = data.totalCount || 0;
+            document.getElementById('leadCount').textContent = `${data.totalCount || 0} leads`;
+
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent =
+                now.toLocaleTimeString().slice(0, 5);
+        }
+
+        // Display leads
+        function displayLeads(leads) {
+            const container = document.getElementById('leadsContainer');
+
+            if (!leads || leads.length === 0) {
+                container.innerHTML = `
+                    <div class="no-leads">
+                        🎯 Click "Trigger Demo Lead" to see webhook in action!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = leads.map(lead => `
+                <div class="lead-card">
+                    <div class="lead-header">
+                        <div class="lead-name">${lead.name}</div>
+                        <div class="lead-time">${new Date(lead.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="lead-details">
+                        <div class="lead-field">📧 ${lead.email}</div>
+                        <div class="lead-field">📞 ${lead.phone}</div>
+                        <div class="lead-field">📍 ${lead.source}</div>
+                        <div class="lead-field">🏷️ ${lead.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshLeads, 5000);
+
+        // Initial load
+        refreshLeads();
+
+        console.log('🚀 Facebook Webhook Demo Dashboard Ready!');
+    </script>
+</body>
+</html>
