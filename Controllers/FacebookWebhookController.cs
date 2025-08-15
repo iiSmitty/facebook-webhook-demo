@@ -1,69 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using FacebookWebhookDemo.Models;
+using FacebookWebhookDemo.Services;
 
 namespace FacebookWebhookDemo.Controllers
 {
-    // Simple Lead model
-    public class Lead
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public DateTime Timestamp { get; set; } = DateTime.Now;
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Source { get; set; } = "Facebook";
-        public string Status { get; set; } = "New";
-    }
-
-    // In-memory storage for demo
-    public static class LeadStorage
-    {
-        private static readonly List<Lead> _leads = new();
-        private static readonly object _lock = new();
-
-        public static void AddLead(Lead lead)
-        {
-            lock (_lock)
-            {
-                _leads.Add(lead);
-            }
-            Console.WriteLine($"💡 New Lead Added: {lead.Name} ({lead.Email})");
-        }
-
-        public static List<Lead> GetAllLeads()
-        {
-            lock (_lock)
-            {
-                return _leads.OrderByDescending(l => l.Timestamp).ToList();
-            }
-        }
-
-        public static int GetLeadCount()
-        {
-            lock (_lock)
-            {
-                return _leads.Count;
-            }
-        }
-
-        public static void ClearAllLeads()
-        {
-            lock (_lock)
-            {
-                _leads.Clear();
-            }
-            Console.WriteLine("🗑️ All leads cleared!");
-        }
-    }
-
-    // Simple request model for demo triggers
-    public class DemoTriggerRequest
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-    }
-
     [ApiController]
     [Route("api/[controller]")]
     public class FacebookWebhookController : ControllerBase
@@ -76,7 +17,9 @@ namespace FacebookWebhookDemo.Controllers
             _logger = logger;
         }
 
-        // Facebook webhook verification (GET request)
+        /// <summary>
+        /// Facebook webhook verification endpoint (GET request)
+        /// </summary>
         [HttpGet]
         public IActionResult VerifyWebhook()
         {
@@ -96,7 +39,9 @@ namespace FacebookWebhookDemo.Controllers
             return BadRequest("Verification failed");
         }
 
-        // Receive webhook data (POST request)
+        /// <summary>
+        /// Receive webhook data from Facebook (POST request)
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> ReceiveWebhook()
         {
@@ -132,21 +77,9 @@ namespace FacebookWebhookDemo.Controllers
             }
         }
 
-        // Helper method to extract values from JSON
-        private string GetValueFromJson(JsonElement json, string property, string defaultValue)
-        {
-            try
-            {
-                if (json.TryGetProperty(property, out var element))
-                {
-                    return element.GetString() ?? defaultValue;
-                }
-            }
-            catch { }
-            return defaultValue;
-        }
-
-        // Get all leads (for dashboard)
+        /// <summary>
+        /// Get all leads for dashboard display
+        /// </summary>
         [HttpGet("leads")]
         public IActionResult GetLeads()
         {
@@ -159,7 +92,9 @@ namespace FacebookWebhookDemo.Controllers
             });
         }
 
-        // Manual trigger for demo (this is the cool part!)
+        /// <summary>
+        /// Manual trigger for demo lead generation
+        /// </summary>
         [HttpPost("trigger-demo")]
         public IActionResult TriggerDemo([FromBody] DemoTriggerRequest? request = null)
         {
@@ -183,7 +118,9 @@ namespace FacebookWebhookDemo.Controllers
             });
         }
 
-        // Simulate Facebook webhook data
+        /// <summary>
+        /// Simulate a Facebook webhook payload
+        /// </summary>
         [HttpPost("simulate-facebook")]
         public IActionResult SimulateFacebook()
         {
@@ -215,9 +152,7 @@ namespace FacebookWebhookDemo.Controllers
                 }
             };
 
-            var json = JsonSerializer.Serialize(facebookPayload);
-
-            // Simulate the webhook call to ourselves
+            // Create a lead from the simulated Facebook data
             var lead = new Lead
             {
                 Name = $"Facebook Lead {Random.Shared.Next(100, 999)}",
@@ -228,7 +163,7 @@ namespace FacebookWebhookDemo.Controllers
 
             LeadStorage.AddLead(lead);
 
-            _logger.LogInformation($"📘 Facebook webhook simulated: {json}");
+            _logger.LogInformation($"📘 Facebook webhook simulated");
 
             return Ok(new
             {
@@ -239,7 +174,9 @@ namespace FacebookWebhookDemo.Controllers
             });
         }
 
-        // Clear all leads (for demo reset) - FIXED VERSION
+        /// <summary>
+        /// Clear all leads (for demo reset)
+        /// </summary>
         [HttpDelete("clear")]
         public IActionResult ClearLeads()
         {
@@ -250,9 +187,30 @@ namespace FacebookWebhookDemo.Controllers
 
             return Ok(new { status = "success", message = $"Cleared {currentCount} leads" });
         }
+
+        /// <summary>
+        /// Helper method to extract values from JSON with fallback
+        /// </summary>
+        private string GetValueFromJson(JsonElement json, string property, string defaultValue)
+        {
+            try
+            {
+                if (json.TryGetProperty(property, out var element))
+                {
+                    return element.GetString() ?? defaultValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Error extracting {property} from JSON: {ex.Message}");
+            }
+            return defaultValue;
+        }
     }
 
-    // Dashboard Controller
+    /// <summary>
+    /// Dashboard Controller for serving the main UI
+    /// </summary>
     [Route("[controller]")]
     public class DashboardController : Controller
     {
@@ -262,7 +220,9 @@ namespace FacebookWebhookDemo.Controllers
         }
     }
 
-    // Home Controller
+    /// <summary>
+    /// Home Controller for redirecting to dashboard
+    /// </summary>
     public class HomeController : Controller
     {
         public IActionResult Index()
