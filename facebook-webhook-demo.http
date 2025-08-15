@@ -1,0 +1,6 @@
+@facebook_webhook_demo_HostAddress = http://localhost:5181
+
+GET {{facebook_webhook_demo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
