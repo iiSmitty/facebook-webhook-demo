@@ -323,46 +323,47 @@
             }, 3000);
         }
 
-        // Trigger demo lead
-        async function triggerDemo() {
-            const btn = event.target;
-            const originalText = btn.textContent;
+// Trigger demo lead
+async function triggerDemo() {
+    const btn = event.target;
+    const originalText = btn.textContent;
 
-            try {
-                btn.textContent = '⏳ Creating Lead...';
-                btn.disabled = true;
+    try {
+        btn.textContent = '⏳ Creating Lead...';
+        btn.disabled = true;
 
-                const response = await fetch(`${API_BASE}/trigger-demo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: `Demo User ${Math.floor(Math.random() * 900) + 100}`,
-                        email: `demo${Math.floor(Math.random() * 900) + 100}@example.com`,
-                        phone: `+1-555-${Math.floor(Math.random() * 9000) + 1000}`
-                    })
-                });
+        const randomNum = Math.floor(Math.random() * 900) + 100;
+        const response = await fetch(API_BASE + '/trigger-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: 'Demo User ' + randomNum,
+                email: 'demo' + randomNum + '@@example.com',
+                phone: '+1-555-' + (Math.floor(Math.random() * 9000) + 1000)
+             })
+        });
 
-                if (response.ok) {
-                    btn.textContent = '✅ Success!';
-                    btn.classList.add('success');
-                    showNotification('Demo lead created successfully!');
+        if (response.ok) {
+            btn.textContent = '✅ Success!';
+            btn.classList.add('success');
+            showNotification('Demo lead created successfully!');
 
-                    setTimeout(() => refreshLeads(), 500);
-                } else {
-                    throw new Error('Failed to create lead');
-                }
-            } catch (error) {
-                btn.textContent = '❌ Failed';
-                showNotification('Failed to create lead', false);
-                console.error(error);
-            } finally {
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('success');
-                    btn.disabled = false;
-                }, 2000);
-            }
+            setTimeout(() => refreshLeads(), 500);
+        } else {
+            throw new Error('Failed to create lead');
         }
+    } catch (error) {
+        btn.textContent = '❌ Failed';
+        showNotification('Failed to create lead', false);
+        console.error(error);
+    } finally {
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('success');
+            btn.disabled = false;
+        }, 2000);
+    }
+}
 
         // Simulate Facebook webhook
         async function simulateFacebook() {

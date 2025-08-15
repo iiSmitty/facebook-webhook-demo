@@ -164,7 +164,7 @@ namespace FacebookWebhookDemo.Controllers
 
         // Simulate Facebook webhook data
         [HttpPost("simulate-facebook")]
-        public async Task<IActionResult> SimulateFacebook()
+        public IActionResult SimulateFacebook()
         {
             var facebookPayload = new
             {
